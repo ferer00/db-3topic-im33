@@ -4,231 +4,481 @@
 ## SQL-скрипт для створення початкового наповнення бази даних
 
 ```sql
--- MySQL Workbench Forward Engineering
-
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
-
 -- -----------------------------------------------------
--- Schema mydb
+-- Встановлення конфігурації
 -- -----------------------------------------------------
-DROP SCHEMA IF EXISTS `mydb` ;
-
+SET client_min_messages TO WARNING;
+-- Створення бази даних
+DROP SCHEMA IF EXISTS mydb CASCADE;
+CREATE SCHEMA mydb;
+SET search_path TO mydb;
 -- -----------------------------------------------------
--- Schema mydb
+-- Таблиця Role
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
-USE `mydb` ;
-
+CREATE TABLE Role (
+    id SERIAL PRIMARY KEY,
+    roleName VARCHAR(45) NOT NULL,
+    permission VARCHAR(45) NOT NULL
+);
 -- -----------------------------------------------------
--- Table `mydb`.`Role`
+-- Таблиця User
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Role` ;
-
-CREATE TABLE IF NOT EXISTS `mydb`.`Role` (
-  `id` INT NOT NULL,
-  `Rolecol` VARCHAR(45) NULL,
-  `permission` VARCHAR(45) NULL,
-  PRIMARY KEY (`id`))
-ENGINE = InnoDB;
-
-
+CREATE TABLE Users (
+    id SERIAL PRIMARY KEY,
+    firstName VARCHAR(45) NOT NULL,
+    lastName VARCHAR(45) NOT NULL,
+    email VARCHAR(45) NOT NULL UNIQUE,
+    password VARCHAR(45) NOT NULL
+);
 -- -----------------------------------------------------
--- Table `mydb`.`User`
+-- Таблиця Media
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`User` ;
-
-CREATE TABLE IF NOT EXISTS `mydb`.`User` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `first_Name` VARCHAR(45) NOT NULL,
-  `last_Name` VARCHAR(45) NOT NULL,
-  `email` VARCHAR(45) NOT NULL,
-  `password` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
-  UNIQUE INDEX `Usercol_UNIQUE` (`password` ASC) VISIBLE,
-  UNIQUE INDEX `last_Name_UNIQUE` (`last_Name` ASC) VISIBLE,
-  UNIQUE INDEX `first_Name_UNIQUE` (`first_Name` ASC) VISIBLE)
-ENGINE = InnoDB;
-
-
+CREATE TABLE Media (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(45) NOT NULL,
+    keywords VARCHAR(45) NOT NULL,
+    createdAt DATE NOT NULL,
+    updatedAt DATE NOT NULL,
+    userId INT NOT NULL REFERENCES Users(id) ON DELETE NO ACTION ON UPDATE NO ACTION
+);
 -- -----------------------------------------------------
--- Table `mydb`.`Media`
+-- Таблиця Admin
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Media` ;
-
-CREATE TABLE IF NOT EXISTS `mydb`.`Media` (
-  `id` INT NOT NULL,
-  `title` VARCHAR(45) NULL,
-  `keywords` VARCHAR(45) NULL,
-  `createdAt` DATE NULL,
-  `updatedAt` DATE NULL,
-  `User_id` INT NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_Media_User_idx` (`User_id` ASC) VISIBLE,
-  CONSTRAINT `fk_Media_User`
-    FOREIGN KEY (`User_id`)
-    REFERENCES `mydb`.`User` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
+CREATE TABLE Admin (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(45) NOT NULL
+);
 -- -----------------------------------------------------
--- Table `mydb`.`Admin`
+-- Таблиця CommentModeration
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Admin` ;
-
-CREATE TABLE IF NOT EXISTS `mydb`.`Admin` (
-  `id` INT NOT NULL,
-  `name` VARCHAR(45) NULL,
-  PRIMARY KEY (`id`))
-ENGINE = InnoDB;
-
-
+CREATE TABLE CommentModeration (
+    commentId SERIAL PRIMARY KEY,
+    userId INT NOT NULL REFERENCES Users(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    moderatorId INT NOT NULL REFERENCES Admin(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    moderationReason VARCHAR(45),
+    moderationDate DATE NOT NULL,
+    moderationStatus VARCHAR(45) NOT NULL
+);
 -- -----------------------------------------------------
--- Table `mydb`.`CommentModeration`
+-- Таблиця DeleteAccount
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`CommentModeration` ;
-
-CREATE TABLE IF NOT EXISTS `mydb`.`CommentModeration` (
-  `comment_Id` INT NOT NULL,
-  `userId` INT NOT NULL,
-  `moderatorId` INT NOT NULL,
-  `moderationReason` VARCHAR(45) NULL,
-  `moderationDate` DATE NULL,
-  `moderationStatus` VARCHAR(45) NULL,
-  PRIMARY KEY (`comment_Id`),
-  INDEX `fk_CommentModeration_Admin1_idx` (`moderatorId` ASC) VISIBLE,
-  INDEX `fk_CommentModeration_User1_idx` (`userId` ASC) VISIBLE,
-  CONSTRAINT `fk_CommentModeration_Admin1`
-    FOREIGN KEY (`moderatorId`)
-    REFERENCES `mydb`.`Admin` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_CommentModeration_User1`
-    FOREIGN KEY (`userId`)
-    REFERENCES `mydb`.`User` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
+CREATE TABLE DeleteAccount (
+    id SERIAL PRIMARY KEY,
+    userId INT NOT NULL REFERENCES Users(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    reason VARCHAR(45),
+    date DATE NOT NULL,
+    type VARCHAR(45) NOT NULL,
+    description VARCHAR(45),
+    adminId INT NOT NULL REFERENCES Admin(id) ON DELETE NO ACTION ON UPDATE NO ACTION
+);
 -- -----------------------------------------------------
--- Table `mydb`.`DeleteAccount`
+-- Таблиця UserRole
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`DeleteAccount` ;
-
-CREATE TABLE IF NOT EXISTS `mydb`.`DeleteAccount` (
-  `id` INT NOT NULL,
-  `userId` INT NULL,
-  `reason` VARCHAR(45) NULL,
-  `date` DATE NULL,
-  `type` VARCHAR(45) NULL,
-  `description` VARCHAR(45) NULL,
-  `Admin_id` INT NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_DeleteAccount_Admin1_idx` (`Admin_id` ASC) VISIBLE,
-  CONSTRAINT `fk_DeleteAccount_Admin1`
-    FOREIGN KEY (`Admin_id`)
-    REFERENCES `mydb`.`Admin` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
+CREATE TABLE UserRole (
+    userId INT NOT NULL REFERENCES Users(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    roleId INT NOT NULL REFERENCES Role(id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+    PRIMARY KEY (userId, roleId)
+);
 -- -----------------------------------------------------
--- Table `mydb`.`UserRole`
+-- Вставка даних у таблиці
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`UserRole` ;
-
-CREATE TABLE IF NOT EXISTS `mydb`.`UserRole` (
-  `User_id` INT NOT NULL,
-  `User_id1` INT NOT NULL,
-  `Role_id` INT NOT NULL,
-  PRIMARY KEY (`User_id`),
-  INDEX `fk_UserRole_User1_idx` (`User_id1` ASC) VISIBLE,
-  INDEX `fk_UserRole_Role1_idx` (`Role_id` ASC) VISIBLE,
-  CONSTRAINT `fk_UserRole_User1`
-    FOREIGN KEY (`User_id1`)
-    REFERENCES `mydb`.`User` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_UserRole_Role1`
-    FOREIGN KEY (`Role_id`)
-    REFERENCES `mydb`.`Role` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
--- Fill database with data
-USE mybd;
-
-START TRANSACTION;
--- Role
-INSERT INTO `mydb`.`Role` (`id`, `Rolecol`, `permission`) VALUES
-(1, 'Admin', 'Full Access'),
-(2, 'Editor', 'Edit Content'),
-(3, 'Viewer', 'View Content'),
-(4, 'Moderator', 'Manage Comments'),
-(5, 'Contributor', 'Submit Content');
-
--- User
-INSERT INTO `User` (`id`,`first_Name`, `last_Name`, `email`, `password`) 
-VALUES 
-(1,'John', 'Doe', 'john.doe@example.com', 'password123'),
-(2,'Jane', 'Smith', 'jane.smith@example.com', 'securepassword'),
-(3,'Alice', 'Johnson', 'alice.johnson@example.com', 'mypassword'),
-(4,'George', 'Joestar', 'George.Joestar@example.com', 'bestpassword'),
-(5,'Nicole', 'Tesla', 'Nicole.Nesla@example.com', 'cringepassword');
-
--- Media
-INSERT INTO `Media` (`id`,`title`,`keywords`,`createdAT`,`updatedAT`,`User_id`) 
-VALUES
-(1,'test.png','image','07-12','2020-08-12',1),
-(2,'Metalica.mp3','Rock,music,guitar','07-12','2020-08-12',2),
-(3,'message.txt','text','07-12','2019-03-7',3),
-(4,'recipe.mp4','video,cooking','07-12','2019-01-01',4),
-(5,'test.png','image','2018-06-11','2020-08-12',5);
-
---  Admin
-INSERT INTO `mydb`.`Admin` (`id`, `name`) VALUES
-(1, 'Super Admin'),
-(2, 'Moderator Andryi'),
-(3, 'Moderator Boris'),
-(4, 'Deleted Admin 1'),
-(5, 'Deleted Admin 2');
-
--- CommentModeration
-INSERT INTO `mydb`.`CommentModeration` (`comment_Id`, `userId`, `moderatorId`, `moderationReason`, `moderationDate`, `moderationStatus`) VALUES
-(1, 1, 2, 'Inappropriate Language', '2020-08-12', 'Removed'),
-(2, 2, 1, 'Spam', '2024-11-13', 'Flagged'),
-(3, 3, 3, 'Off-topic', '2020-08-12', 'Removed'),
-(4, 4, 4, 'Hate Speech', '2019-01-01', 'Banned'),
-(5, 5, 5, 'Misleading Info', '2020-08-12', 'Under Review');
-
-INSERT INTO `mydb`.`DeleteAccount` (`id`, `userId`, `reason`, `date`, `type`, `description`, `Admin_id`) VALUES
-(1, 3, 'Privacy Concerns', '2024-11-14', 'Permanent', 'User requested account deletion', 1),
-(2, 2, 'Inactive Account', '2024-11-13', 'Temporary', 'Account marked as inactive', 2),
-(3, 1, 'Too Many Emails', '2024-11-10', 'Temporary', 'User opted for temporary deactivation', 3),
-(4, 4, 'Security Issues', '2024-10-01', 'Permanent', 'Security concerns raised by user', 4),
-(5, 5, 'Other', '2024-09-15', 'Permanent', 'No specific reason provided', 5);
-
-INSERT INTO `mydb`.`UserRole` (`User_id`, `User_id1`, `Role_id`) VALUES
-(1, 1, 1),
-(2, 2, 2),
-(3, 3, 3),
-(4, 4, 4),
-(5, 5, 5);
-
+INSERT INTO Role (roleName, permission) VALUES
+('Admin', 'Full Access'),
+('Editor', 'Edit Content'),
+('Viewer', 'View Content'),
+('Moderator', 'Manage Comments'),
+('Contributor', 'Submit Content');
+INSERT INTO Users (firstName, lastName, email, password) VALUES
+('John', 'Doe', 'john.doe@example.com', 'password123'),
+('Jane', 'Smith', 'jane.smith@example.com', 'securepassword'),
+('Alice', 'Johnson', 'alice.johnson@example.com', 'mypassword'),
+('George', 'Joestar', 'george.joestar@example.com', 'bestpassword'),
+('Nicole', 'Tesla', 'nicole.tesla@example.com', 'cringepassword');
+INSERT INTO Media (title, keywords, createdAt, updatedAt, userId) VALUES
+('test.png', 'image', '2018-07-12', '2020-08-12', 1),
+('Metallica.mp3', 'rock,music,guitar', '2019-07-12', '2020-08-12', 2),
+('message.txt', 'text', '2019-03-07', '2020-03-07', 3),
+('recipe.mp4', 'video,cooking', '2019-01-01', '2020-01-01', 4),
+('test.png', 'image', '2018-06-11', '2020-08-12', 5);
+INSERT INTO Admin (name) VALUES
+('Super Admin'),
+('Moderator Andryi'),
+('Moderator Boris'),
+('Deleted Admin 1'),
+('Deleted Admin 2');
+INSERT INTO CommentModeration (userId, moderatorId, moderationReason, moderationDate, moderationStatus) VALUES
+(1, 2, 'Inappropriate Language', '2020-08-12', 'Removed'),
+(2, 1, 'Spam', '2024-11-13', 'Flagged'),
+(3, 3, 'Off-topic', '2020-08-12', 'Removed'),
+(4, 4, 'Hate Speech', '2019-01-01', 'Banned'),
+(5, 5, 'Misleading Info', '2020-08-12', 'Under Review');
+INSERT INTO DeleteAccount (userId, reason, date, type, description, adminId) VALUES
+(3, 'Privacy Concerns', '2024-11-14', 'Permanent', 'User requested account deletion', 1),
+(2, 'Inactive Account', '2024-11-13', 'Temporary', 'Account marked as inactive', 2),
+(1, 'Too Many Emails', '2024-11-10', 'Temporary', 'User opted for temporary deactivation', 3),
+(4, 'Security Issues', '2024-10-01', 'Permanent', 'Security concerns raised by user', 4),
+(5, 'Other', '2024-09-15', 'Permanent', 'No specific reason provided', 5);
+INSERT INTO UserRole (userId, roleId) VALUES
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 4),
+(5, 5);
 COMMIT;
 ```
 
 ## RESTfull сервіс для управління даними
+
+### Підключення до бази данних
+```java
+spring.application.name=demo
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.url=jdbc:postgresql://localhost:5432/workdb
+spring.datasource.username=postgres
+spring.datasource.password=A-z228816
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+```
+### Entity
+
+### User
+```java
+
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Data
+@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String firstname;
+
+    private String lastname;
+
+    private String email;
+
+    private String password;
+}
+```
+### Role
+```java
+
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+@Data
+@Entity
+@Table(name = "role")
+public class Role {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column (name = "rolename")
+    private String roleName;
+
+    private String permission;
+}
+```
+### Media
+```java
+
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.time.LocalDate;
+
+@Data
+@Entity
+@Table(name = "media")
+public class Media {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+
+    private String keywords;
+    @Column(name = "createdat")
+    private LocalDate createdAt;
+    @Column(name = "updatedat")
+    private LocalDate updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "userid", nullable = false)
+    private User user;
+}
+```
+### Repository
+
+### UserRepository
+```java
+package com.example.demo.repository;
+import com.example.demo.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+public interface UserRepository extends JpaRepository<User, Long> {
+}
+```
+### RoleRepository
+```java
+package com.example.demo.repository;
+import com.example.demo.entity.Role;
+import org.springframework.data.jpa.repository.JpaRepository;
+public interface RoleRepository extends JpaRepository<Role, Long> {
+}
+```
+### MediaRepository
+```java
+package com.example.demo.repository;
+import com.example.demo.entity.Media;
+import org.springframework.data.jpa.repository.JpaRepository;
+public interface MediaRepository extends JpaRepository<Media, Long> {
+}
+```
+### Service 
+
+### UserService
+```java
+package com.example.demo.service;
+import com.example.demo.entity.User;
+import com.example.demo.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import java.util.List;
+@Service
+public class UserService {
+    private final UserRepository userRepository;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+    public User createUser(User user) {
+        return userRepository.save(user);
+    }
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    public User updateUser(Long id, User userDetails) {
+        User user = getUserById(id);
+        user.setFirstname(userDetails.getFirstname());
+        user.setLastname(userDetails.getLastname());
+        user.setEmail(userDetails.getEmail());
+        user.setPassword(userDetails.getPassword());
+        return userRepository.save(user);
+    }
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+}
+```
+### RoleService
+```java
+package com.example.demo.service;
+import com.example.demo.entity.Role;
+import com.example.demo.repository.RoleRepository;
+import org.springframework.stereotype.Service;
+import java.util.Optional;
+@Service
+public class RoleService {
+    private final RoleRepository roleRepository;
+    public RoleService(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
+    public Role createRole(Role role) {
+        return roleRepository.save(role);
+    }
+    public Role getRoleById(Long id) {
+        return roleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Role not found with id: " + id));
+    }
+    public Role updateRole(Long id, Role roleDetails) {
+        Role role = getRoleById(id);
+        role.setRoleName(roleDetails.getRoleName());
+        role.setPermission(roleDetails.getPermission());
+        return roleRepository.save(role);
+    }
+    public void deleteRole(Long id) {
+        roleRepository.deleteById(id);
+    }
+} 
+```
+### MediaService
+```java
+package com.example.demo.service;
+import com.example.demo.entity.Media;
+import com.example.demo.entity.User;
+import com.example.demo.repository.MediaRepository;
+import com.example.demo.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import java.util.List;
+@Service
+public class MediaService {
+    private final MediaRepository mediaRepository;
+    private final UserRepository userRepository;
+    public MediaService(MediaRepository mediaRepository, UserRepository userRepository) {
+        this.mediaRepository = mediaRepository;
+        this.userRepository = userRepository;
+    }
+    public List<Media> getAllMedia() {
+        return mediaRepository.findAll();
+    }
+    public Media createMedia(Media media, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        media.setUser(user);
+        return mediaRepository.save(media);
+    }
+    public Media getMediaById(Long id) {
+        return mediaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Media not found"));
+    }
+    public Media updateMedia(Long id, Media mediaDetails, Long userId) {
+        Media media = getMediaById(id);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        media.setTitle(mediaDetails.getTitle());
+        media.setKeywords(mediaDetails.getKeywords());
+        media.setCreatedAt(mediaDetails.getCreatedAt());
+        media.setUpdatedAt(mediaDetails.getUpdatedAt());
+        media.setUser(user);
+        return mediaRepository.save(media);
+    }
+    public void deleteMedia(Long id) {
+        mediaRepository.deleteById(id);
+    }
+} 
+```
+### Controller
+### UserController
+```java
+package com.example.demo.controller;
+import com.example.demo.entity.User;
+import com.example.demo.service.UserService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    private final UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+    @PostMapping
+    public User createUser(@RequestBody User user) {
+        return userService.createUser(user);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+        return ResponseEntity.ok(userService.updateUser(id, userDetails));
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+```
+### RoleController
+```java
+package com.example.demo.controller;
+import com.example.demo.entity.Role;
+import com.example.demo.service.RoleService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+@RestController
+@RequestMapping("/api/roles")
+public class RoleController {
+    private final RoleService roleService;
+    public RoleController(RoleService roleService) {
+        this.roleService = roleService;
+    }
+    @PostMapping
+    public Role createRole(@RequestBody Role role) {
+        return roleService.createRole(role);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Role> getRoleById(@PathVariable Long id) {
+        return ResponseEntity.ok(roleService.getRoleById(id));
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Role> updateRole(@PathVariable Long id, @RequestBody Role roleDetails) {
+        return ResponseEntity.ok(roleService.updateRole(id, roleDetails));
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
+        roleService.deleteRole(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+```
+### MediaController
+```java
+package com.example.demo.controller;
+import com.example.demo.entity.Media;
+import com.example.demo.service.MediaService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+@RestController
+@RequestMapping("/api/media")
+public class MediaController {
+    private final MediaService mediaService;
+    public MediaController(MediaService mediaService) {
+        this.mediaService = mediaService;
+    }
+    @GetMapping
+    public List<Media> getAllMedia() {
+        return mediaService.getAllMedia();
+    }
+    @PostMapping("/{userId}")
+    public Media createMedia(@RequestBody Media media, @PathVariable Long userId) {
+        return mediaService.createMedia(media, userId);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Media> getMediaById(@PathVariable Long id) {
+        return ResponseEntity.ok(mediaService.getMediaById(id));
+    }
+    @PutMapping("/{id}/{userId}")
+    public ResponseEntity<Media> updateMedia(@PathVariable Long id, @RequestBody Media mediaDetails, @PathVariable Long userId) {
+        return ResponseEntity.ok(mediaService.updateMedia(id, mediaDetails, userId));
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMedia(@PathVariable Long id) {
+        mediaService.deleteMedia(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+```
+### Main Class for Spring Boot Application 
+```java
+package com.example.demo;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+@SpringBootApplication
+public class DemoApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(DemoApplication.class, args);
+	}
+}
+```
