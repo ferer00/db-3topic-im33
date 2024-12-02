@@ -3,20 +3,15 @@ home: true
 actionText: Розпочати →
 actionLink: /intro/
 
-footer: "ECL 2.0 Licensed | Copyright © [2024] [Mariia Sribranets]"
+footer: "ECL 2.0 Licensed | Copyright © [2024] [Kolesnyk Viacheslav]"
 ---
 
 
-**Виконав(-ла):** 
+**Виконав:** 
 
-*студент 2-го курсу, групи ІМ-33* **Артем БОНДАРЧУК** Telegram: [@bndrchuk_artem](https://t.me/bndrchuk_artem)\
-*студент 2-го курсу, групи ІМ-33* **Даниїл ВАСИЛЬЧЕНКО** Telegram: [@dn_vsl](https://t.me/dn_vsl)\
-*студент 2-го курсу, групи ІМ-33* **Вячеслав КОЛЕСНИК** Telegram: [@ferer00](https://t.me/ferer00)\
-*студент 2-го курсу, групи ІМ-34* **Павло ОЛІЙНИК** Telegram: [@Ohheloyeah](https://t.me/Ohheloyeah)\
-*студент 2-го курсу, групи ІМ-33* **Владислав ПОПОВ** Telegram: [@StasikLutiy](https://t.me/StasikLutiy)\
-*студент 2-го курсу, групи ІМ-33* **Олександр РОДІНА** Telegram: [@justargus](https://t.me/justargus)\
-*студентка 2-го курсу, групи ІМ-33* **Мирослава САВЕНЮК** Telegram: [@saveniukk](https://t.me/saveniukk)\
-*студентка 2-го курсу, групи ІМ-33* **Марія СРІБРАНЕЦЬ** Telegram: [@mariia_yll](https://t.me/mariia_yll)
+
+*студент 2-го курсу, групи ІМ-33* **Вячеслав КОЛЕСНИК** Telegram: [@ferer00](https://t.me/ferer00)
+
 
 
 **Керівник**
