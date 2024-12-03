@@ -15,7 +15,7 @@ module.exports = {
     }]
   ],
   port: 3030,
-  base: '/db-3topic-im33/',
+  base: '/db-coursework/',
   theme: 'cool',
   // dest: 'dist',
   head: [
